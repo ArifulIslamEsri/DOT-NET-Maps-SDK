@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maps SDK for .NET — Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card2: #21253a;
+    --accent: #4f8ef7;
+    --accent2: #7c3aed;
+    --green: #22d3a5;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2a2f45;
+    --code-bg: #12151f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0f1117 0%, #1a1d27 40%, #16213e 100%);
+    border-bottom: 2px solid var(--border);
+    padding: 60px 24px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(79,142,247,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(79,142,247,0.15);
+    border: 1px solid rgba(79,142,247,0.4);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 4px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(24px, 5vw, 42px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 17px;
+    max-width: 540px;
+    margin: 0 auto 24px;
+  }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* PROGRESS BAR */
+  .progress-section {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+    text-align: center;
+  }
+  .progress-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .progress-bar-wrap {
+    max-width: 500px;
+    margin: 0 auto;
+    background: var(--border);
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    width: 33%;
+    transition: width 1s ease;
+  }
+
+  /* NAV TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    padding: 16px 24px 0;
+    max-width: 960px;
+    margin: 0 auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    color: var(--muted);
+    padding: 10px 20px;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--text); background: var(--card2); }
+  .tab-btn.active {
+    background: var(--card2);
+    color: var(--accent);
+    border-color: var(--accent);
+    border-bottom: 2px solid var(--card2);
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+  .section-panel {
+    display: none;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    border-radius: 0 8px 8px 8px;
+    padding: 32px;
+    animation: fadeIn 0.3s ease;
+  }
+  .section-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .section-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .icon-blue { background: rgba(79,142,247,0.15); border: 1px solid rgba(79,142,247,0.3); }
+  .icon-purple { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); }
+  .icon-green { background: rgba(34,211,165,0.15); border: 1px solid rgba(34,211,165,0.3); }
+  .section-header h2 {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    color: #fff;
+  }
+  .section-header p { font-size: 14px; color: var(--muted); margin-top: 2px; }
+
+  /* CARDS */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .info-card:hover { border-color: var(--accent); }
+  .info-card h4 {
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .info-card p { font-size: 14px; color: var(--muted); }
+
+  /* TOPIC LIST */
+  .topic-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .topic-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+  .topic-item:hover { border-color: var(--accent); }
+  .topic-item .num {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    background: rgba(79,142,247,0.1);
+    border: 1px solid rgba(79,142,247,0.2);
+    border-radius: 4px;
+    padding: 2px 8px;
+    white-space: nowrap;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .topic-item .done-badge {
+    font-size: 11px;
+    background: rgba(34,211,165,0.1);
+    border: 1px solid rgba(34,211,165,0.3);
+    color: var(--green);
+    border-radius: 4px;
+    padding: 2px 8px;
+    white-space: nowrap;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .topic-item .next-badge {
+    font-size: 11px;
+    background: rgba(251,191,36,0.1);
+    border: 1px solid rgba(251,191,36,0.3);
+    color: var(--yellow);
+    border-radius: 4px;
+    padding: 2px 8px;
+    white-space: nowrap;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .topic-item-content h4 { font-size: 15px; font-weight: 700; }
+  .topic-item-content p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px 0;
+    overflow-x: auto;
+    position: relative;
+  }
+  .code-block pre {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: #c9d1d9;
+    line-height: 1.7;
+    white-space: pre;
+  }
+  .code-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(79,142,247,0.1);
+    padding: 2px 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    display: inline-block;
+  }
+  .kw { color: #ff79c6; }
+  .type { color: #8be9fd; }
+  .str { color: #f1fa8c; }
+  .cm { color: #6272a4; font-style: italic; }
+  .fn { color: #50fa7b; }
+  .num { color: #bd93f9; }
+
+  /* COMPARISON TABLE */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  .compare-table th {
+    background: rgba(79,142,247,0.1);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    padding: 12px 16px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  .compare-table td {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .compare-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .compare-table tr:hover td { background: rgba(79,142,247,0.05); }
+
+  /* CALLOUT */
+  .callout {
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 14px;
+  }
+  .callout-info { background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.25); }
+  .callout-tip { background: rgba(34,211,165,0.08); border: 1px solid rgba(34,211,165,0.25); }
+  .callout-warn { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25); }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  /* SECTION DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 28px 0;
+  }
+
+  h3 {
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 14px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(79,142,247,0.1);
+    border: 1px solid rgba(79,142,247,0.3);
+    color: var(--accent);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    transition: all 0.2s;
+    margin: 4px 4px 4px 0;
+  }
+  .link-btn:hover { background: rgba(79,142,247,0.2); }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    margin-left: 6px;
+  }
+  .tag-req { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+  .tag-opt { background: rgba(139,139,139,0.15); color: #aaa; border: 1px solid rgba(139,139,139,0.3); }
+
+  @media (max-width: 600px) {
+    .section-panel { padding: 20px 16px; }
+    .tabs { padding: 16px 16px 0; }
+    .main { padding: 0 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">📍 Training Guide</div>
+  <h1>Maps SDK for .NET</h1>
+  <p>Your complete beginner-friendly study guide — with examples, code, and explanations for every topic.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Sections</div></div>
+    <div class="stat"><div class="stat-num">~20.5</div><div class="stat-label">Hours Total</div></div>
+    <div class="stat"><div class="stat-num">C#</div><div class="stat-label">Language</div></div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-section">
+  <div class="progress-label">Your Progress — Videos 1–10 Complete ✅</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill"></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('s1')">🔧 Section 1: Setup</button>
+  <button class="tab-btn" onclick="showTab('s2')">💻 Section 2: C# / .NET</button>
+  <button class="tab-btn" onclick="showTab('s3')">🗺️ Section 3: Maps SDK</button>
+</div>
+
+<div class="main">
+
+<!-- ===================== SECTION 1 ===================== -->
+<div id="s1" class="section-panel active">
+  <div class="section-header">
+    <div class="section-icon icon-blue">🔧</div>
+    <div>
+      <h2>Section 1: Setup</h2>
+      <p>~2 hours — Install Visual Studio 2022 and required workloads</p>
+    </div>
+  </div>
+
+  <h3>🖥️ What is Visual Studio 2022?</h3>
+  <p style="color:var(--muted); margin-bottom:16px;">Visual Studio 2022 is the app you use to write C# code and build map apps. It is NOT the same as Visual Studio Code (VS Code)! VS Code is a simple text editor. Visual Studio 2022 is a full development environment.</p>
+
+  <div class="card-grid">
+    <div class="info-card">
+      <h4>🏢 Visual Studio 2022</h4>
+      <p>Full IDE for building Windows, Android, iOS apps. This is what you need for Maps SDK.</p>
+    </div>
+    <div class="info-card">
+      <h4>📝 VS Code</h4>
+      <p>Lightweight text editor. Good for web dev, scripts. <strong>NOT the same</strong> as Visual Studio 2022.</p>
+    </div>
+  </div>
+
+  <h3>📦 Steps to Install</h3>
+  <ul class="topic-list">
+    <li class="topic-item">
+      <span class="num">Step 1</span>
+      <div class="topic-item-content">
+        <h4>Submit a ServiceNow Request</h4>
+        <p>Get access to the installer at <code style="color:var(--accent)">\\redstorage3\VS\2022</code> on the network drive.</p>
+      </div>
+    </li>
+    <li class="topic-item">
+      <span class="num">Step 2</span>
+      <div class="topic-item-content">
+        <h4>Run vs_setup.exe</h4>
+        <p>Double-click the setup file. This opens Visual Studio Installer.</p>
+      </div>
+    </li>
+    <li class="topic-item">
+      <span class="num">Step 3</span>
+      <div class="topic-item-content">
+        <h4>Install the Right Workloads</h4>
+        <p>Pick what you need based on the platform you want to build for.</p>
+      </div>
+    </li>
+  </ul>
+
+  <h3>⚙️ Which Workload Do You Need?</h3>
+  <table class="compare-table">
+    <tr><th>Platform</th><th>Workload to Install</th><th>What It Is</th></tr>
+    <tr><td>WPF / WinUI</td><td><strong>.NET desktop development</strong></td><td>Windows desktop apps</td></tr>
+    <tr><td>MAUI</td><td><strong>.NET MAUI</strong></td><td>Android + iOS + Windows apps</td></tr>
+  </table>
+
+  <div class="callout callout-tip">
+    <span class="callout-icon">💡</span>
+    <div><strong>Tip</strong> Check the system requirements at the Esri docs before installing so you don't miss anything.</div>
+  </div>
+
+  <a href="https://developers.arcgis.com/net/system-requirements/system-requirements-for-200-8/" target="_blank" class="link-btn">🔗 System Requirements</a>
+</div>
+
+<!-- ===================== SECTION 2 ===================== -->
+<div id="s2" class="section-panel">
+  <div class="section-header">
+    <div class="section-icon icon-purple">💻</div>
+    <div>
+      <h2>Section 2: C# / .NET</h2>
+      <p>~6.5 hours — Learn the programming language used for Maps SDK</p>
+    </div>
+  </div>
+
+  <!-- VIDEOS -->
+  <h3>🎬 Microsoft C# Videos</h3>
+  <ul class="topic-list">
+    <li class="topic-item"><span class="done-badge">✅ Done</span><div class="topic-item-content"><h4>1. Understanding Your First C# Program</h4><p>Get familiar with the Visual Studio UI layout.</p></div></li>
+    <li class="topic-item"><span class="done-badge">✅ Done</span><div class="topic-item-content"><h4>2. Creating Your First C# Program</h4><p>Write and run your first Hello World program.</p></div></li>
+    <li class="topic-item"><span class="done-badge">✅ Done</span><div class="topic-item-content"><h4>3. Data Types and Variables</h4><p>int, string, bool, double — how to store data.</p></div></li>
+    <li class="topic-item"><span class="done-badge">✅ Done</span><div class="topic-item-content"><h4>4. The if Decision Statement</h4><p>Make decisions in code: if / else if / else.</p></div></li>
+    <li class="topic-item"><span class="done-badge">✅ Done</span><div class="topic-item-content"><h4>5. for Iteration Statement</h4><p>Repeat code a fixed number of times with for loop.</p></div></li>
+    <li class="topic-item"><span class="done-badge">✅ Done</span><div class="topic-item-content"><h4>6. Understanding Arrays</h4><p>Store multiple values in one variable.</p></div></li>
+    <li class="topic-item"><span class="done-badge">✅ Done</span><div class="topic-item-content"><h4>7. Defining and Calling Methods</h4><p>Create reusable blocks of code (functions).</p></div></li>
+    <li class="topic-item"><span class="done-badge">✅ Done</span><div class="topic-item-content"><h4>8. While Iteration Statement</h4><p>Repeat code while a condition is true.</p></div></li>
+    <li class="topic-item"><span class="done-badge">✅ Done</span><div class="topic-item-content"><h4>9. Understanding Classes</h4><p>Blueprint for creating objects.</p></div></li>
+    <li class="topic-item"><span class="done-badge">✅ Done</span><div class="topic-item-content"><h4>10. More About Classes and Methods</h4><p>Deeper dive into class methods and structure.</p></div></li>
+    <li class="topic-item"><span class="next-badge">⭐ Next</span><div class="topic-item-content"><h4>11. Scope and Accessibility Modifiers</h4><p>public, private, protected — who can access what.</p></div></li>
+    <li class="topic-item"><span class="next-badge">⭐ Next</span><div class="topic-item-content"><h4>12. Working with Collections</h4><p>List&lt;T&gt; and Dictionary&lt;K,V&gt; — better than arrays.</p></div></li>
+    <li class="topic-item"><span class="next-badge">⭐ Next</span><div class="topic-item-content"><h4>13. Gracefully Handling Exceptions</h4><p>try / catch / finally — handle errors without crashing.</p></div></li>
+  </ul>
+
+  <div class="divider"></div>
+
+  <!-- SCOPE -->
+  <h3>🔐 Scope &amp; Accessibility Modifiers (Video 11)</h3>
+  <p style="color:var(--muted);margin-bottom:14px;">Controls <strong>who can see and use</strong> a variable or method.</p>
+  <table class="compare-table">
+    <tr><th>Keyword</th><th>Who Can Access It?</th><th>Example Use</th></tr>
+    <tr><td><code style="color:#ff79c6">public</code></td><td>Anyone, anywhere</td><td>Map methods the user calls</td></tr>
+    <tr><td><code style="color:#ff79c6">private</code></td><td>Only inside the same class</td><td>Internal helper methods</td></tr>
+    <tr><td><code style="color:#ff79c6">protected</code></td><td>Same class + child classes</td><td>Base class shared logic</td></tr>
+  </table>
+  <div class="code-block">
+    <div class="code-label">C# — Accessibility Example</div>
+    <pre><span class="kw">public class</span> <span class="type">MapLoader</span>
+{
+    <span class="kw">public string</span> MapName = <span class="str">"City Map"</span>;   <span class="cm">// Anyone can read this</span>
+    <span class="kw">private string</span> apiKey = <span class="str">"abc123"</span>;   <span class="cm">// Only this class can use this</span>
+
+    <span class="kw">public void</span> <span class="fn">ShowMapName</span>()
+    {
+        Console.<span class="fn">WriteLine</span>(MapName);   <span class="cm">// ✅ Works fine</span>
+        Console.<span class="fn">WriteLine</span>(apiKey);    <span class="cm">// ✅ Works, we're inside the class</span>
+    }
+}
+
+<span class="kw">var</span> loader = <span class="kw">new</span> <span class="type">MapLoader</span>();
+Console.<span class="fn">WriteLine</span>(loader.MapName);  <span class="cm">// ✅ public — works!</span>
+Console.<span class="fn">WriteLine</span>(loader.apiKey);   <span class="cm">// ❌ private — ERROR!</span></pre>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- COLLECTIONS -->
+  <h3>📚 Collections — List &amp; Dictionary (Video 12)</h3>
+  <p style="color:var(--muted);margin-bottom:14px;">Collections are like <strong>smarter arrays</strong> that can grow and shrink.</p>
+  <div class="card-grid">
+    <div class="info-card">
+      <h4>📋 List&lt;T&gt;</h4>
+      <p>An ordered list of items. Like an array but you can add/remove items easily. Great for a list of layers or features.</p>
+    </div>
+    <div class="info-card">
+      <h4>🗂️ Dictionary&lt;K,V&gt;</h4>
+      <p>Stores key → value pairs. Like a real dictionary: look up a word (key) to get its meaning (value). Great for map settings.</p>
+    </div>
+  </div>
+  <div class="code-block">
+    <div class="code-label">C# — List Example</div>
+    <pre><span class="cm">// Create a list of map layer names</span>
+<span class="type">List</span>&lt;<span class="type">string</span>&gt; layers = <span class="kw">new</span> <span class="type">List</span>&lt;<span class="type">string</span>&gt;();
+
+layers.<span class="fn">Add</span>(<span class="str">"Streets"</span>);
+layers.<span class="fn">Add</span>(<span class="str">"Satellite"</span>);
+layers.<span class="fn">Add</span>(<span class="str">"Terrain"</span>);
+
+Console.<span class="fn">WriteLine</span>(layers[<span class="num">0</span>]);   <span class="cm">// Output: Streets</span>
+Console.<span class="fn">WriteLine</span>(layers.Count);  <span class="cm">// Output: 3</span>
+
+layers.<span class="fn">Remove</span>(<span class="str">"Satellite"</span>);       <span class="cm">// Remove an item</span>
+
+<span class="kw">foreach</span> (<span class="kw">var</span> layer <span class="kw">in</span> layers)
+{
+    Console.<span class="fn">WriteLine</span>(layer);   <span class="cm">// Prints: Streets, Terrain</span>
+}</pre>
+  </div>
+  <div class="code-block">
+    <div class="code-label">C# — Dictionary Example</div>
+    <pre><span class="cm">// Store map settings as key-value pairs</span>
+<span class="type">Dictionary</span>&lt;<span class="type">string</span>, <span class="type">string</span>&gt; settings = <span class="kw">new</span> <span class="type">Dictionary</span>&lt;<span class="type">string</span>, <span class="type">string</span>&gt;();
+
+settings[<span class="str">"theme"</span>] = <span class="str">"dark"</span>;
+settings[<span class="str">"language"</span>] = <span class="str">"en"</span>;
+
+Console.<span class="fn">WriteLine</span>(settings[<span class="str">"theme"</span>]);     <span class="cm">// Output: dark</span>
+Console.<span class="fn">WriteLine</span>(settings.ContainsKey(<span class="str">"language"</span>)); <span class="cm">// Output: True</span></pre>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- EXCEPTIONS -->
+  <h3>🛡️ Exception Handling (Video 13)</h3>
+  <p style="color:var(--muted);margin-bottom:14px;">Stops your app from <strong>crashing</strong> when something goes wrong.</p>
+  <div class="code-block">
+    <div class="code-label">C# — try / catch / finally</div>
+    <pre><span class="kw">try</span>
+{
+    <span class="cm">// Code that MIGHT fail goes here</span>
+    <span class="kw">var</span> map = <span class="kw">await</span> <span class="fn">LoadMapFromServerAsync</span>();
+}
+<span class="kw">catch</span> (<span class="type">Exception</span> ex)
+{
+    <span class="cm">// If it fails, this runs instead of crashing</span>
+    Console.<span class="fn">WriteLine</span>(<span class="str">"Error: "</span> + ex.Message);
+}
+<span class="kw">finally</span>
+{
+    <span class="cm">// This ALWAYS runs — crash or no crash</span>
+    Console.<span class="fn">WriteLine</span>(<span class="str">"Loading finished."</span>);
+}</pre>
+  </div>
+  <div class="callout callout-tip">
+    <span class="callout-icon">💡</span>
+    <div><strong>Think of it like this:</strong> try = attempt the task. catch = have a backup plan. finally = cleanup no matter what.</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ASYNC -->
+  <h3>⚡ Asynchronous Programming — async / await</h3>
+  <p style="color:var(--muted);margin-bottom:14px;"><strong>Very important!</strong> The Maps SDK uses async everywhere. Without it, your app freezes while loading maps.</p>
+  <div class="callout callout-warn">
+    <span class="callout-icon">🍕</span>
+    <div><strong>Restaurant Analogy:</strong> <br>❌ Sync = You stand at counter, stare at wall until food is ready. App freezes!<br>✅ Async = You sit down, relax, waiter calls you when ready. App stays alive!</div>
+  </div>
+  <div class="code-block">
+    <div class="code-label">C# — Sync vs Async</div>
+    <pre><span class="cm">// ❌ BAD — App freezes while loading!</span>
+<span class="kw">void</span> <span class="fn">LoadMap</span>()
+{
+    <span class="kw">var</span> data = <span class="fn">GetMapData</span>();   <span class="cm">// App freezes here</span>
+    MyMapView.Map = data;
+}
+
+<span class="cm">// ✅ GOOD — App stays responsive!</span>
+<span class="kw">async void</span> <span class="fn">LoadMap</span>()
+{
+    <span class="kw">var</span> data = <span class="kw">await</span> <span class="fn">GetMapDataAsync</span>(); <span class="cm">// Waits without freezing</span>
+    MyMapView.Map = data;
+}</pre>
+  </div>
+  <div class="code-block">
+    <div class="code-label">C# — Real Maps SDK Example</div>
+    <pre><span class="kw">private async void</span> <span class="fn">MyMapView_Loaded</span>(<span class="type">object</span> sender, <span class="type">EventArgs</span> e)
+{
+    <span class="cm">// Create map — instant</span>
+    <span class="kw">var</span> myMap = <span class="kw">new</span> <span class="type">Map</span>(<span class="type">BasemapStyle</span>.ArcGISStreets);
+
+    <span class="cm">// Load from Esri servers — takes time, but app stays alive!</span>
+    <span class="kw">await</span> myMap.<span class="fn">LoadAsync</span>();
+
+    <span class="cm">// Show the map once loaded</span>
+    MyMapView.Map = myMap;
+}</pre>
+  </div>
+  <table class="compare-table">
+    <tr><th>Keyword</th><th>Meaning</th></tr>
+    <tr><td><code style="color:#ff79c6">async</code></td><td>This method does background work</td></tr>
+    <tr><td><code style="color:#ff79c6">await</code></td><td>Wait here, but DON'T freeze the app</td></tr>
+    <tr><td><code style="color:#8be9fd">Task</code></td><td>A background job with no return value</td></tr>
+    <tr><td><code style="color:#8be9fd">Task&lt;T&gt;</code></td><td>A background job that returns a value</td></tr>
+  </table>
+
+  <div class="divider"></div>
+
+  <!-- UI FRAMEWORKS -->
+  <h3>🖼️ UI Frameworks — WPF vs MAUI vs WinUI</h3>
+  <p style="color:var(--muted);margin-bottom:14px;">Think of these as 3 different <strong>containers</strong> for your map app. The Maps SDK code inside is almost the same — only the container changes.</p>
+  <table class="compare-table">
+    <tr><th>Framework</th><th>Works On</th><th>Difficulty</th><th>How Common</th></tr>
+    <tr><td>🖥️ <strong>WPF</strong></td><td>Windows only</td><td>⭐ Easy</td><td>🔥 Most common for cases</td></tr>
+    <tr><td>📱 <strong>MAUI</strong></td><td>Windows + iOS + Android</td><td>⭐⭐ Medium</td><td>🔥 Common</td></tr>
+    <tr><td>🪟 <strong>WinUI</strong></td><td>Windows only (modern)</td><td>⭐⭐⭐ Hard</td><td>😴 Rare</td></tr>
+  </table>
+  <div class="code-block">
+    <div class="code-label">XAML — Map control looks the same in all 3!</div>
+    <pre><span class="cm">&lt;!-- WPF --&gt;</span>
+&lt;<span class="type">Window</span>&gt;
+    &lt;<span class="type">esri:MapView</span> x:Name=<span class="str">"MyMapView"</span> /&gt;
+&lt;/<span class="type">Window</span>&gt;
+
+<span class="cm">&lt;!-- MAUI --&gt;</span>
+&lt;<span class="type">ContentPage</span>&gt;
+    &lt;<span class="type">esri:MapView</span> x:Name=<span class="str">"MyMapView"</span> /&gt;
+&lt;/<span class="type">ContentPage</span>&gt;
+
+<span class="cm">&lt;!-- WinUI --&gt;</span>
+&lt;<span class="type">Window</span>&gt;
+    &lt;<span class="type">esri:MapView</span> x:Name=<span class="str">"MyMapView"</span> /&gt;
+&lt;/<span class="type">Window</span>&gt;</pre>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- OOP -->
+  <h3>🧩 Object-Oriented Programming (OOP)</h3>
+  <p style="color:var(--muted);margin-bottom:14px;">OOP is the way C# organizes code. Everything is an <strong>object</strong> made from a <strong>class</strong>.</p>
+  <div class="callout callout-info">
+    <span class="callout-icon">🏠</span>
+    <div><strong>Analogy:</strong> A class is a <strong>blueprint</strong> for a house. An object is an <strong>actual house</strong> built from that blueprint. You can build many houses from one blueprint.</div>
+  </div>
+  <div class="code-block">
+    <div class="code-label">C# — Class &amp; Object Example</div>
+    <pre><span class="cm">// CLASS = blueprint</span>
+<span class="kw">public class</span> <span class="type">MapLayer</span>
+{
+    <span class="kw">public string</span> Name;        <span class="cm">// Property</span>
+    <span class="kw">public bool</span> IsVisible;
+
+    <span class="kw">public void</span> <span class="fn">Toggle</span>()       <span class="cm">// Method</span>
+    {
+        IsVisible = !IsVisible;
+        Console.<span class="fn">WriteLine</span>(<span class="str">$"{Name} is now {IsVisible}"</span>);
+    }
+}
+
+<span class="cm">// OBJECT = actual instance made from the blueprint</span>
+<span class="type">MapLayer</span> streets = <span class="kw">new</span> <span class="type">MapLayer</span>();
+streets.Name = <span class="str">"Streets"</span>;
+streets.IsVisible = <span class="kw">true</span>;
+streets.<span class="fn">Toggle</span>();  <span class="cm">// Output: Streets is now False</span>
+
+<span class="type">MapLayer</span> satellite = <span class="kw">new</span> <span class="type">MapLayer</span>();
+satellite.Name = <span class="str">"Satellite"</span>;
+satellite.IsVisible = <span class="kw">false</span>;</pre>
+  </div>
+</div>
+
+<!-- ===================== SECTION 3 ===================== -->
+<div id="s3" class="section-panel">
+  <div class="section-header">
+    <div class="section-icon icon-green">🗺️</div>
+    <div>
+      <h2>Section 3: Maps SDK for .NET</h2>
+      <p>~12 hours — Learn the actual Esri Maps SDK topics</p>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <span class="callout-icon">💡</span>
+    <div><strong>Good news:</strong> The code is almost identical across Windows, Android, and iOS! Learn WPF first, then the others are easy.</div>
+  </div>
+
+  <!-- GET STARTED -->
+  <h3>🚀 Get Started First</h3>
+  <ul class="topic-list">
+    <li class="topic-item"><span class="num">Setup</span><div class="topic-item-content"><h4>API Key Credential</h4><p>You need an API key to access Esri map services. Like a password for the map data.</p></div></li>
+    <li class="topic-item"><span class="num">Setup</span><div class="topic-item-content"><h4>OAuth Credentials</h4><p>Another way to authenticate — used when users log in with their Esri account.</p></div></li>
+    <li class="topic-item"><span class="num">Setup</span><div class="topic-item-content"><h4>Install Maps SDK for .NET</h4><p>Install via NuGet package in Visual Studio. Complete this before anything else in Section 3.</p></div></li>
+  </ul>
+
+  <div class="divider"></div>
+
+  <!-- MAPS 2D -->
+  <h3>🗺️ Maps (2D) <span class="tag tag-req">Required</span></h3>
+  <p style="color:var(--muted);margin-bottom:14px;">The foundation — displaying and interacting with a 2D map.</p>
+  <ul class="topic-list">
+    <li class="topic-item"><span class="num">Read</span><div class="topic-item-content"><h4>Introduction + Navigate a map view + Add graphics</h4></div></li>
+    <li class="topic-item"><span class="num">Tutorial</span><div class="topic-item-content"><h4>Display a map</h4><p>Your first working map in WPF!</p></div></li>
+    <li class="topic-item"><span class="num">Tutorial</span><div class="topic-item-content"><h4>Add a point, line, and polygon</h4><p>Draw shapes on the map.</p></div></li>
+    <li class="topic-item"><span class="num">Tutorial</span><div class="topic-item-content"><h4>Display a web map</h4><p>Load a map stored in ArcGIS Online.</p></div></li>
+  </ul>
+  <div class="code-block">
+    <div class="code-label">C# — Display a Basic Map</div>
+    <pre><span class="kw">private async void</span> <span class="fn">MapLoaded</span>(<span class="type">object</span> sender, <span class="type">EventArgs</span> e)
+{
+    <span class="cm">// Create a map with a street basemap</span>
+    <span class="kw">var</span> map = <span class="kw">new</span> <span class="type">Map</span>(<span class="type">BasemapStyle</span>.ArcGISStreets);
+
+    <span class="cm">// Load it from Esri servers</span>
+    <span class="kw">await</span> map.<span class="fn">LoadAsync</span>();
+
+    <span class="cm">// Show it in the view</span>
+    MyMapView.Map = map;
+}</pre>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- LAYERS -->
+  <h3>🗂️ Layers <span class="tag tag-req">Required</span></h3>
+  <p style="color:var(--muted);margin-bottom:14px;">Layers are data drawn on top of the basemap — roads, buildings, features, etc.</p>
+  <ul class="topic-list">
+    <li class="topic-item"><span class="num">Read</span><div class="topic-item-content"><h4>Introduction + Layer types + Add raster data</h4></div></li>
+    <li class="topic-item"><span class="num">Tutorial</span><div class="topic-item-content"><h4>Add a feature layer</h4><p>Add real GIS data (points, lines, polygons) from a URL.</p></div></li>
+    <li class="topic-item"><span class="num">Tutorial</span><div class="topic-item-content"><h4>Add a feature layer from a portal item</h4><p>Add a layer stored in ArcGIS Online.</p></div></li>
+  </ul>
+  <div class="code-block">
+    <div class="code-label">C# — Add a Feature Layer</div>
+    <pre><span class="cm">// URL to a feature service</span>
+<span class="kw">var</span> uri = <span class="kw">new</span> <span class="type">Uri</span>(<span class="str">"https://services.arcgis.com/.../FeatureServer/0"</span>);
+
+<span class="cm">// Create the layer from the URL</span>
+<span class="kw">var</span> layer = <span class="kw">new</span> <span class="type">FeatureLayer</span>(uri);
+
+<span class="cm">// Add it to the map</span>
+MyMapView.Map.OperationalLayers.<span class="fn">Add</span>(layer);</pre>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- QUERY -->
+  <h3>🔍 Query <span class="tag tag-req">Required</span></h3>
+  <p style="color:var(--muted);margin-bottom:14px;">Search for specific features on a map using conditions (like a database WHERE clause).</p>
+  <div class="code-block">
+    <div class="code-label">C# — Query a Feature Layer with SQL</div>
+    <pre><span class="kw">var</span> queryParams = <span class="kw">new</span> <span class="type">QueryParameters</span>();
+queryParams.WhereClause = <span class="str">"STATE_NAME = 'California'"</span>; <span class="cm">// SQL filter</span>
+
+<span class="kw">var</span> result = <span class="kw">await</span> featureLayer.<span class="fn">SelectFeaturesAsync</span>(queryParams, <span class="type">SelectionMode</span>.New);
+Console.<span class="fn">WriteLine</span>(<span class="str">$"Found: {result.Count()} features"</span>);</pre>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- GEOCODE -->
+  <h3>📍 Geocode and Search <span class="tag tag-req">Required</span></h3>
+  <p style="color:var(--muted);margin-bottom:14px;">Convert a text address into map coordinates (latitude/longitude).</p>
+  <div class="code-block">
+    <div class="code-label">C# — Search for an Address</div>
+    <pre><span class="kw">var</span> locator = <span class="kw">await</span> <span class="type">LocatorTask</span>.<span class="fn">CreateAsync</span>(<span class="kw">new</span> <span class="type">Uri</span>(<span class="str">"https://geocode.arcgis.com/..."</span>));
+<span class="kw">var</span> results = <span class="kw">await</span> locator.<span class="fn">GeocodeAsync</span>(<span class="str">"1600 Pennsylvania Ave, Washington DC"</span>);
+
+<span class="kw">if</span> (results.Count > <span class="num">0</span>)
+{
+    <span class="kw">var</span> location = results[<span class="num">0</span>].DisplayLocation;
+    <span class="cm">// Pan the map to the found location</span>
+    <span class="kw">await</span> MyMapView.<span class="fn">SetViewpointCenterAsync</span>(location);
+}</pre>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- OFFLINE -->
+  <h3>📴 Offline Maps <span class="tag tag-req">Required</span></h3>
+  <p style="color:var(--muted);margin-bottom:14px;">Download map data so it works <strong>without internet</strong> — important for field workers.</p>
+  <ul class="topic-list">
+    <li class="topic-item"><span class="num">Read</span><div class="topic-item-content"><h4>Work with offline data + Take a map offline with ArcGIS Pro</h4></div></li>
+    <li class="topic-item"><span class="num">Tutorial</span><div class="topic-item-content"><h4>Create an offline map area</h4><p>Define which area to download.</p></div></li>
+    <li class="topic-item"><span class="num">Tutorial</span><div class="topic-item-content"><h4>Create a mobile map package</h4><p>Package the map for offline use.</p></div></li>
+    <li class="topic-item"><span class="num">Tutorial</span><div class="topic-item-content"><h4>Display a map from a mobile map package</h4><p>Open and show the offline map.</p></div></li>
+  </ul>
+  <div class="code-block">
+    <div class="code-label">C# — Open an Offline Map Package</div>
+    <pre><span class="cm">// Open the local .mmpk file</span>
+<span class="kw">var</span> package = <span class="kw">await</span> <span class="type">MobileMapPackage</span>.<span class="fn">OpenAsync</span>(<span class="str">@"C:\Maps\CityMap.mmpk"</span>);
+
+<span class="cm">// Load the first map in the package</span>
+<span class="kw">if</span> (package.Maps.Count > <span class="num">0</span>)
+{
+    MyMapView.Map = package.Maps[<span class="num">0</span>];
+}</pre>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- UTILITY NETWORK -->
+  <h3>⚡ Utility Network <span class="tag tag-req">Required</span></h3>
+  <p style="color:var(--muted);margin-bottom:14px;">Used for infrastructure networks like electric grids, water pipes, gas lines. A lot of support cases come from here!</p>
+  <div class="callout callout-warn">
+    <span class="callout-icon">⚠️</span>
+    <div><strong>Important:</strong> Read ALL topics in the Utility Network section. Cases come in frequently for this. Learn trace, associated elements, and taking utility network offline.</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SECURITY -->
+  <h3>🔒 Security &amp; Authentication <span class="tag tag-req">Required</span></h3>
+  <p style="color:var(--muted);margin-bottom:14px;">How your app logs in to access Esri's services securely.</p>
+  <div class="code-block">
+    <div class="code-label">C# — OAuth Authentication Setup</div>
+    <pre><span class="cm">// Set up OAuth to access Esri services</span>
+<span class="type">OAuthUserConfiguration</span> oauthConfig = <span class="kw">new</span> <span class="type">OAuthUserConfiguration</span>(
+    serverUri: <span class="kw">new</span> <span class="type">Uri</span>(<span class="str">"https://www.arcgis.com/sharing/rest"</span>),
+    clientId: <span class="str">"YOUR_CLIENT_ID"</span>,
+    redirectUri: <span class="kw">new</span> <span class="type">Uri</span>(<span class="str">"my-app://auth"</span>)
+);
+
+<span class="type">ArcGISEnvironment</span>.AuthenticationManager.OAuthUserConfigurations.<span class="fn">Add</span>(oauthConfig);</pre>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TOOLKITS AND SAMPLES -->
+  <h3>🧰 Toolkits &amp; Samples (Final Step)</h3>
+  <p style="color:var(--muted);margin-bottom:14px;">After completing all topics, explore these resources. They help you help customers!</p>
+  <div class="card-grid">
+    <div class="info-card">
+      <h4>🧰 Toolkit</h4>
+      <p>Extra UI components for .NET Maps SDK — things like compass, legend, scalebar, etc. Very useful for support cases.</p>
+    </div>
+    <div class="info-card">
+      <h4>💾 GitHub Samples</h4>
+      <p>Real working code examples for every SDK feature. Your go-to when a customer has an issue — find the matching sample!</p>
+    </div>
+  </div>
+  <a href="https://developers.arcgis.com/net/toolkit/" target="_blank" class="link-btn">🔗 Toolkits Docs</a>
+  <a href="https://github.com/Esri/arcgis-maps-sdk-dotnet-samples" target="_blank" class="link-btn">🔗 GitHub Samples</a>
+
+  <div class="divider"></div>
+
+  <!-- ALL TOPICS OVERVIEW -->
+  <h3>📋 All SDK Topics — Quick Reference</h3>
+  <table class="compare-table">
+    <tr><th>Topic</th><th>Required?</th><th>Key Thing to Learn</th></tr>
+    <tr><td>Maps (2D)</td><td><span class="tag tag-req">Required</span></td><td>Display a map, add graphics, load web map</td></tr>
+    <tr><td>Layers</td><td><span class="tag tag-req">Required</span></td><td>Feature layers, raster data, portal items</td></tr>
+    <tr><td>Styles &amp; Visualization</td><td><span class="tag tag-req">Required</span></td><td>Symbols, renderers, labels</td></tr>
+    <tr><td>Query</td><td><span class="tag tag-req">Required</span></td><td>SQL queries on feature data</td></tr>
+    <tr><td>Edit Features</td><td><span class="tag tag-req">Required</span></td><td>Add/update/delete features</td></tr>
+    <tr><td>Geocode &amp; Search</td><td><span class="tag tag-req">Required</span></td><td>Address to coordinates</td></tr>
+    <tr><td>Route &amp; Directions</td><td><span class="tag tag-req">Required</span></td><td>Navigate a route, find directions</td></tr>
+    <tr><td>Spatial Analysis</td><td><span class="tag tag-req">Required</span></td><td>Geometry, spatial references, measurements</td></tr>
+    <tr><td>Utility Network</td><td><span class="tag tag-req">Required</span></td><td>Trace, offline UN, associated elements</td></tr>
+    <tr><td>Offline Maps</td><td><span class="tag tag-req">Required</span></td><td>Download and open mobile map packages</td></tr>
+    <tr><td>ArcGIS Portal</td><td><span class="tag tag-req">Required</span></td><td>Portal security, portal items</td></tr>
+    <tr><td>Programming Patterns</td><td><span class="tag tag-req">Required</span></td><td>All patterns — read everything</td></tr>
+    <tr><td>Security &amp; Auth</td><td><span class="tag tag-req">Required</span></td><td>OAuth credentials</td></tr>
+    <tr><td>License &amp; Deployment</td><td><span class="tag tag-req">Required</span></td><td>License levels and how to apply them</td></tr>
+    <tr><td>Display clusters</td><td><span class="tag tag-opt">Optional</span></td><td>If time allows</td></tr>
+    <tr><td>Dictionary renderer</td><td><span class="tag tag-opt">Optional</span></td><td>If time allows</td></tr>
+  </table>
+</div>
+
+</div><!-- end main -->
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
